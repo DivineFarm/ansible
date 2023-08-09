@@ -1,0 +1,13 @@
+---
+
+- hosts: all
+  tasks:
+  - name: install Apache 2 Package and PHP support
+    package:
+      name: 
+      - "{{ apache_package }}"
+      - "{{ php_package }}"
+      state: latest
+      update_cache: yes
+    remote_user: "{{ remote_user }}"
+

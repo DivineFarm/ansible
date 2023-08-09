@@ -1,3 +1,4 @@
-192.168.1.27
-192.168.1.28
-192.168.1.29
+[rpi]
+192.168.1.27 apache_package=apache2 php_package=libapache2-mod-php ansible_ssh_user=root
+[laptop]
+192.168.1.6 apache_package=apache php_package=php ansible_ssh_user=home

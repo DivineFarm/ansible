@@ -2,14 +2,52 @@
 
 - hosts: all
   tasks:
-  - name: apt update
+  - name: install updates & upgrades for APT
+    tags: always
     apt:
       update_cache: yes
-  - name: install Apache 2 Package
-    apt:
-      name: apache2
+      upgrade: dist
+    when: ansible_distribution in [ "Ubuntu", "Debian"]
+
+  - name: install updates & upgrades for DNF
+    tags: always
+    dnf:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution in [ "Fedora", "CentOS"]
+
+- hosts: laptop
+  become: true
+  tasks:
+  - name: install Apache 2 Package with PHP support
+    tags: apache, apache2, php, fedora, centos
+    dnf:
+      name:
+        - httpd
+        - php
       state: latest
-  - name: install Apache 2 PHP support
+#      update_cache: yes
+#    ansible_user_ssh: "home"
+#    set_fact:
+#      remote_user: "{{ remote_user }}"
+    when: ansible_distribution in [ "Fedora", "CentOS" ]
+
+- hosts: rpi
+  tasks:
+  - name: install Apache 2 Package and PHP support
+    tags: apache, apache2, php, debian, rpi
     apt:
-      name: libapache2-mod-php
+      name:
+      - apache2
+      - libapache2-mod-php
       state: latest
+      update_cache: yes
+    when: ansible_distribution in [ "Ubuntu", "Debian"]
+
+- hosts: laptop
+  become: true
+  tags: centos, autoremove
+  tasks:
+  - name: Autoremove unneeded packages installed as dependencies
+    ansible.builtin.dnf:
+      autoremove: yes
