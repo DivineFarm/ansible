@@ -8,6 +8,7 @@
       update_cache: yes
       upgrade: dist
     when: ansible_distribution in [ "Ubuntu", "Debian"]
+    changed_when: false
 
   - name: install updates & upgrades for DNF
     tags: always
@@ -15,6 +16,7 @@
       update_only: yes
       update_cache: yes
     when: ansible_distribution in [ "Fedora", "CentOS"]
+    changed_when: false
 
 - hosts: all
   become: true

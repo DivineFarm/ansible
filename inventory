@@ -1,6 +1,6 @@
 [rpi]
-192.168.1.27 apache_package=apache2 php_package=libapache2-mod-php ansible_ssh_user=root
+192.168.1.27 ansible_ssh_user=root
 [laptop]
-192.168.1.6 apache_package=apache php_package=php ansible_ssh_user=home
+192.168.1.6  ansible_ssh_user=home
 [workstations]
-192.168.1.27 apache_package=apache2 php_package=libapache2-mod-php ansible_ssh_user=root
+192.168.1.6  ansible_ssh_user=home

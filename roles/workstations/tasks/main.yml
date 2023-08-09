@@ -1,0 +1,29 @@
+- name: install updates & upgrades for DNF
+  tags: centos, fedora, update
+  dnf:
+    update_only: yes
+    update_cache: yes
+  when: ansible_distribution in [ "Fedora", "CentOS"]
+  changed_when: false
+
+- name: Add User 'home'
+  tags: always
+  user:
+    name: home
+    groups: root
+
+- name: add SSH key to target
+  tags: always
+  authorized_key:
+    user: home
+    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIxHqJTKqeaia0QXRzblTIstRNo2EYEuNCAavnHVHYx1 ansible"
+
+#- name: add sudoers file for 'home' User
+#    gather_facts: no
+#  copy:
+#    src: sudoer_home
+#    dest: /etc/sudoers.d/home
+#    owner: root
+#    group: root
+#    mode: 0440
+#  when: ansible_distribution in [ "Fedora", "CentOS"]

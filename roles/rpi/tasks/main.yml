@@ -1,0 +1,22 @@
+- name: install updates & upgrades for APT
+  tags: always
+  apt:
+      update_cache: yes
+      upgrade: dist
+  when: ansible_distribution in [ "Ubuntu", "Debian"]
+  changed_when: false
+
+
+
+- name: Add User 'home'
+  tags: always
+  user:
+    name: home
+    groups: root
+
+- name: add SSH key to target
+  tags: always
+  authorized_key:
+    user: home
+    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIxHqJTKqeaia0QXRzblTIstRNo2EYEuNCAavnHVHYx1 ansible"
+

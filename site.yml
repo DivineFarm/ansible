@@ -1,0 +1,19 @@
+---
+
+- hosts: all
+  become: true
+  roles:
+    - workstations
+    - rpi
+
+- hosts: workstations
+  become: true
+  roles:
+    - workstations
+
+
+- hosts: rpi
+  become: true
+  roles:
+    - rpi
+

@@ -1,0 +1,99 @@
+---
+- hosts: rpi
+  become: true
+  vars_files:
+    - vars/default.yml
+
+  tasks:
+    - name: Install pre-reqs for Docker and Ansible
+      apt: name={{ item }} state=latest update_cache=yes
+      loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools' , 'python3-docker' , 'ufw' ]
+
+#    - name: Add the GPG key for Docker
+#      shell: 'curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg'
+
+    - name: Add the repository to fetch the docker package
+      shell: 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian bookworm stable" | tee /etc/apt/sources.list.d/docker.list'
+
+    - name: Update source list and then install docker
+      apt: update_cache=yes name=docker state=latest
+
+    - name: Install docker-compose
+      apt: update_cache=yes name=docker-compose state=latest
+
+
+#    - name: Install the Docker module for Python, required by ansible
+#      pip:
+#        name: docker
+
+    # REQUIRED PACKAGES FOR USING ANSIBLE DOCKER (for portainer installation below)
+    - name: Install related packages
+      apt:
+        name: "{{ packages }}"
+        state: latest
+      vars:
+        packages:
+          - python3-pip
+          - mc
+
+#    - name: Install python packages
+#      pip:
+#        name: docker
+
+    # https://docs.ansible.com/ansible/latest/collections/community/docker/docker_container_module.html#ansible-collections-community-docker-docker-container-module
+    - name: Create portainer container
+      docker_container:
+        name: portainer
+        image: portainer/portainer-ce
+        state: started
+        recreate: yes
+        restart_policy: always
+        published_ports:
+          - "8000:8000"
+          - "9000:9000"
+          - "9443:9443"
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - portainer_data:/data
+
+    # FIREWALL SETUP
+    - name: Open Portainer port
+      tags: ufw
+      ufw:
+        state: enabled
+        rule: allow
+        port: 9000
+        proto: tcp
+
+    - name: Open Portainer port
+      tags: ufw
+      ufw:
+        state: enabled
+        rule: allow
+        port: 9443
+        proto: tcp
+
+    - name: Open SSH port
+      ufw:
+        state: enabled
+        rule: allow
+        port: "22"
+        proto: tcp
+
+
+    - name: Clone AI Agent github repository
+      tags: git
+      git:
+         repo: https://github.com/quantiota/AI-Agent-Host.git
+         dest: /home/root/
+         clone: yes
+         update: yes
+
+#    - name: Creates 3 containers, using the variables we defined in the vars file
+#      docker_container:
+#        name: "{{ container_name }}{{ item }}"
+#        image: "{{ container_image }}"
+#        command: "{{ command_to_run }}"
+#        state: present
+#      with_sequence: count={{ no_containers }}
+
