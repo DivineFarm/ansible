@@ -16,6 +16,21 @@
       update_cache: yes
     when: ansible_distribution in [ "Fedora", "CentOS"]
 
+- hosts: all
+  become: true
+  tasks:
+  - name: Add User 'home'
+    tags: always
+    user:
+      name: home
+      groups: root
+
+  - name: add SSH key to target
+    tags: always
+    authorized_key:
+      user: home
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIxHqJTKqeaia0QXRzblTIstRNo2EYEuNCAavnHVHYx1 ansible"
+
 - hosts: laptop
   become: true
   tasks:
@@ -114,6 +129,7 @@
         mode: 0755
         owner: root
         group: root
+
 - hosts: laptop
   become: true
   tags: centos, autoremove
