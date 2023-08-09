@@ -89,6 +89,15 @@
          clone: yes
          update: yes
 
+    - name: Ensure a job that runs at 2 and 5 exists. Creates an entry like "0 5,2 * * ls -alh > /dev/null"
+      tags: cron
+      ansible.builtin.cron:
+        name: "update SSL certificates"
+        minute: "0"
+        hour: "5"
+        weekday: "1"
+        job: "docker compose run certbot renew"
+
 #    - name: Creates 3 containers, using the variables we defined in the vars file
 #      docker_container:
 #        name: "{{ container_name }}{{ item }}"
