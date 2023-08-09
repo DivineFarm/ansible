@@ -32,6 +32,23 @@
 #      remote_user: "{{ remote_user }}"
     when: ansible_distribution in [ "Fedora", "CentOS" ]
 
+  - name: copy files/default-site.html file to target
+    tags: apache, apache2, php, centos, fedora
+    copy: 
+      src: default-site.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: start HTTPD service
+    tags: apache, apache2, php, centos, fedora
+    service: 
+      name: httpd
+      state: started
+      enabled: yes
+    when: ansible_distribution in [ "Fedora", "CentOS" ]
+
 - hosts: rpi
   tasks:
   - name: install Apache 2 Package and PHP support
@@ -44,6 +61,29 @@
       update_cache: yes
     when: ansible_distribution in [ "Ubuntu", "Debian"]
 
+  - name: copy files/default-site.html file to target
+    tags: apache, apache2, php
+    copy: 
+      src: default-site.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
+
+- hosts: workstations
+  tasks:
+    - name: install Unzip
+      package:
+        name: unzip
+
+    - name: install terraform
+      unarchive:
+        src: https://releases.hashicorp.com/terraform/1.5.4/terraform_1.5.4_linux_arm64.zip
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: 0755
+        owner: root
+        group: root
 - hosts: laptop
   become: true
   tags: centos, autoremove
