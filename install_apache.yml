@@ -31,6 +31,17 @@
       user: home
       key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIxHqJTKqeaia0QXRzblTIstRNo2EYEuNCAavnHVHYx1 ansible"
 
+  - name: add sudoers file for 'home' User
+    tags: always
+#    gather_facts: no
+    copy:
+      src: sudoer_home
+      dest: /etc/sudoers.d/home
+      owner: root
+      group: root
+      mode: 0440
+    when: ansible_distribution in [ "Fedora", "CentOS"]
+
 - hosts: laptop
   become: true
   tasks:
