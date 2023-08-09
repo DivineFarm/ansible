@@ -49,10 +49,25 @@
       enabled: yes
     when: ansible_distribution in [ "Fedora", "CentOS" ]
 
+  - name: change e-mail address for admin
+    tags: apache, apache2, php, httpd
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: 'ServerAdmin'
+      line: ServerAdmin admin@divinefarms.ma
+    register: httpd
+
+  - name: restart HTTPD service
+    tags: apache, apache2, php, centos, fedora
+    service: 
+      name: httpd
+      state: restarted
+    when: httpd.changed
+
 - hosts: rpi
   tasks:
   - name: install Apache 2 Package and PHP support
-    tags: apache, apache2, php, debian, rpi
+    tags: apache, apache2, php, debian, rpi, httpd
     apt:
       name:
       - apache2
@@ -62,13 +77,28 @@
     when: ansible_distribution in [ "Ubuntu", "Debian"]
 
   - name: copy files/default-site.html file to target
-    tags: apache, apache2, php
+    tags: apache, apache2, php, httpd
     copy: 
       src: default-site.html
       dest: /var/www/html/index.html
       owner: root
       group: root
       mode: 0644
+
+  - name: change keepalive timeout on Apache2 server
+    tags: apache, apache2, php, httpd
+    lineinfile:
+      path: /etc/apache2/apache2.conf
+      regexp: '^KeepAliveTimeout'
+      line: KeepAliveTimeout 8
+    register: apache2
+
+  - name: restart APACHE2 service
+    tags: apache, apache2, php, centos, fedora
+    service: 
+      name: apache2
+      state: restarted
+    when: apache2.changed
 
 - hosts: workstations
   tasks:
