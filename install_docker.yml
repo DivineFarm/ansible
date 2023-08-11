@@ -36,6 +36,13 @@
           - python3-pip
           - mc
 
+    - name: Install Chrony
+      tags: ntp, chrony
+      apt: 
+        name: chrony 
+        state: present
+#        state: started 
+#        enabled: yes
 #    - name: Install python packages
 #      pip:
 #        name: docker
@@ -98,6 +105,12 @@
         weekday: "1"
         job: "docker compose run certbot renew"
 
+    - name: Creates an entry like "@reboot docker compose up"
+      tags: cron
+      ansible.builtin.cron:
+        name: "AI Agent docker stack launch @reboot"
+        special_time: reboot
+        job: "docker compose up --build -d"
 #    - name: Creates 3 containers, using the variables we defined in the vars file
 #      docker_container:
 #        name: "{{ container_name }}{{ item }}"
